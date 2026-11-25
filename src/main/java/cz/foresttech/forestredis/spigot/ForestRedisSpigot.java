@@ -8,6 +8,7 @@ import cz.foresttech.forestredis.shared.models.MessageTransferObject;
 import cz.foresttech.forestredis.spigot.adapter.SpigotConfigAdapter;
 import cz.foresttech.forestredis.spigot.events.AsyncRedisMessageReceivedEvent;
 import cz.foresttech.forestredis.spigot.events.RedisMessageReceivedEvent;
+import cz.foresttech.forestredis.spigot.scheduler.SchedulerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,10 +22,13 @@ public class ForestRedisSpigot extends JavaPlugin implements IForestRedisPlugin 
 
     private ILoggerAdapter loggerAdapter;
 
+    private SchedulerAdapter schedulerAdapter;
+
     @Override
     public void onEnable() {
         instance = this;
         loggerAdapter = new JUtilLoggerAdapter(getLogger());
+        schedulerAdapter = SchedulerAdapter.create(this);
 
         load();
     }
@@ -39,7 +43,7 @@ public class ForestRedisSpigot extends JavaPlugin implements IForestRedisPlugin 
 
     @Override
     public void runAsync(Runnable task) {
-        Bukkit.getScheduler().runTaskAsynchronously(instance, task);
+        schedulerAdapter.runAsync(task);
     }
 
     @Override
@@ -48,7 +52,7 @@ public class ForestRedisSpigot extends JavaPlugin implements IForestRedisPlugin 
         Bukkit.getPluginManager().callEvent(asyncRedisMessageReceivedEvent);
 
         if (!asyncRedisMessageReceivedEvent.isCancelled()) {
-            Bukkit.getScheduler().runTask(this, () -> Bukkit.getPluginManager().callEvent(new RedisMessageReceivedEvent(asyncRedisMessageReceivedEvent.getChannel(), asyncRedisMessageReceivedEvent.getMessageTransferObject())));
+            schedulerAdapter.runSync(() -> Bukkit.getPluginManager().callEvent(new RedisMessageReceivedEvent(asyncRedisMessageReceivedEvent.getChannel(), asyncRedisMessageReceivedEvent.getMessageTransferObject())));
         }
     }
 

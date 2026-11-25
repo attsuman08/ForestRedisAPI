@@ -4,3 +4,4 @@ author: ForestTech
 version: ${version}
 description: Powerful and simple Redis API by ForestTech
 api-version: 1.13
+folia-supported: true
