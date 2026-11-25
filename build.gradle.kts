@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "cz.foresttech"
-version = "1.3.11"
+version = "1.3.12"
 
 repositories {
     mavenCentral()
